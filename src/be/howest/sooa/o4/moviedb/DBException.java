@@ -1,4 +1,4 @@
-package be.howest.hayk.moviedb;
+package be.howest.sooa.o4.moviedb;
 
 /**
  *

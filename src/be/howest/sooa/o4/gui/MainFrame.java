@@ -1,9 +1,9 @@
-package be.howest.hayk.gui;
+package be.howest.sooa.o4.gui;
 
-import be.howest.hayk.domain.Genre;
-import be.howest.hayk.domain.Movie;
-import be.howest.hayk.moviedb.data.GenreRepository;
-import be.howest.hayk.moviedb.data.MovieRepository;
+import be.howest.sooa.o4.domain.Genre;
+import be.howest.sooa.o4.domain.Movie;
+import be.howest.sooa.o4.data.GenreRepository;
+import be.howest.sooa.o4.data.MovieRepository;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;

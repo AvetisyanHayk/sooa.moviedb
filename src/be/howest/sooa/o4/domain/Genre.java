@@ -1,4 +1,4 @@
-package be.howest.hayk.domain;
+package be.howest.sooa.o4.domain;
 
 import java.util.Locale;
 import java.util.Objects;

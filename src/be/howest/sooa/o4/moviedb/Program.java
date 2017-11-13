@@ -1,6 +1,6 @@
-package be.howest.hayk.moviedb;
+package be.howest.sooa.o4.moviedb;
 
-import be.howest.hayk.gui.MainFrame;
+import be.howest.sooa.o4.gui.MainFrame;
 import javax.swing.JFrame;
 
 /**

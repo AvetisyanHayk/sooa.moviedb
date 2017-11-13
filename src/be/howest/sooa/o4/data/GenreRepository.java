@@ -1,7 +1,7 @@
-package be.howest.hayk.moviedb.data;
+package be.howest.sooa.o4.data;
 
-import be.howest.hayk.domain.Genre;
-import be.howest.hayk.moviedb.DBException;
+import be.howest.sooa.o4.domain.Genre;
+import be.howest.sooa.o4.moviedb.DBException;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
