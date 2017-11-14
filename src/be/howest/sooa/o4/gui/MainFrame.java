@@ -60,7 +60,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     public void addAddGenreButtonActionListener() {
         addGenreButton.addActionListener((ActionEvent e) -> {
-            GenreDialog genreDialog = new GenreDialog(MainFrame.this, true);
+            GenreDialog genreDialog = new GenreDialog(MainFrame.this, true, this);
             genreDialog.setTitle("Add Genre");
             centerScreen(genreDialog);
             genreDialog.setVisible(true);
@@ -70,7 +70,7 @@ public class MainFrame extends javax.swing.JFrame {
     public void addEditGenreButtonActionListener() {
         editGenreButton.addActionListener((ActionEvent e) -> {
             GenreDialog genreDialog = new GenreDialog(MainFrame.this, true,
-                    getSelectedGenre());
+                    this, getSelectedGenre());
             genreDialog.setTitle("Edit Genre");
             centerScreen(genreDialog);
             genreDialog.setVisible(true);
@@ -84,7 +84,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void addAddMovieButtonActionListener() {
         addMovieButton.addActionListener((ActionEvent e) -> {
             MovieDialog movieDialog = new MovieDialog(MainFrame.this, true,
-                    genresList.getModel());
+                    this, genresList.getModel());
             movieDialog.setTitle("Add Movie");
             centerScreen(movieDialog);
             movieDialog.setVisible(true);
@@ -94,7 +94,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void addEditMovieButtonActionListener() {
         editMovieButton.addActionListener((ActionEvent e) -> {
             MovieDialog movieDialog = new MovieDialog(MainFrame.this, true,
-                    genresList.getModel(), selectedMovie);
+                    this, genresList.getModel(), selectedMovie);
             movieDialog.setTitle("Edit Movie");
             centerScreen(movieDialog);
             movieDialog.setVisible(true);
@@ -115,6 +115,7 @@ public class MainFrame extends javax.swing.JFrame {
                     options[0]);
             if (result == 1) {
                 movieRepo.delete(selectedMovie);
+                fillMovies(selectedMovie.getGenre());
             }
         });
     }
@@ -156,22 +157,34 @@ public class MainFrame extends javax.swing.JFrame {
 
     public void saveMovie(Movie movie) {
         movieRepo.save(movie);
+        fillMovies(movie.getGenre());
     }
 
     public void updateMovie(Movie movie) {
         movieRepo.update(movie);
+        fillMovies(movie.getGenre());
     }
 
     public void saveGenre(Genre genre) {
         genreRepo.save(genre);
+        fillGenres();
+        selectGenre(genre);
     }
 
     public void updateGenre(Genre genre) {
         genreRepo.update(genre);
+        fillGenres();
+        selectGenre(genre);
     }
 
     public void deleteGenre(Genre genre) {
         genreRepo.delete(genre);
+        fillGenres();
+        editGenreButton.setEnabled(false);
+    }
+
+    private void selectGenre(Genre genre) {
+        genresList.setSelectedItem(genre);
     }
 
     /**

@@ -12,21 +12,28 @@ import javax.swing.JOptionPane;
 public class GenreDialog extends java.awt.Dialog {
 
     private transient Genre genre;
+    private transient MainFrame frame;
 
     /**
      * Creates new form GenreDialog
      *
      * @param parent
      * @param modal
+     * @param frame
      */
+    public GenreDialog(java.awt.Frame parent, boolean modal, MainFrame frame) {
+        this(parent, modal, frame, null);
+    }
+
     public GenreDialog(java.awt.Frame parent, boolean modal) {
         this(parent, modal, null);
     }
 
-    public GenreDialog(Frame parent, boolean modal, Genre genre) {
+    public GenreDialog(Frame parent, boolean modal, MainFrame frame, Genre genre) {
         super(parent, modal);
         initComponents();
         this.genre = genre;
+        this.frame = frame;
         if (genre != null) {
             deleteButton.setEnabled(true);
             genreField.setText(genre.toString());
@@ -73,14 +80,14 @@ public class GenreDialog extends java.awt.Dialog {
                     options,
                     options[0]);
             if (result == 1) {
-                MainFrame frame = (MainFrame) getParent();
                 frame.deleteGenre(genre);
+                setVisible(false);
+                dispose();
             }
         });
     }
 
     private void saveGenre(String newGenre) {
-        MainFrame frame = (MainFrame) getParent();
         if (genre == null) {
             buildGenre(newGenre);
             frame.saveGenre(genre);

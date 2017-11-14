@@ -66,9 +66,6 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Genre"/>
       </Properties>
-      <AccessibilityProperties>
-        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Genre"/>
-      </AccessibilityProperties>
     </Component>
     <Component class="javax.swing.JTextField" name="genreField">
     </Component>

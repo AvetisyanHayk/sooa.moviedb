@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 public class MovieDialog extends java.awt.Dialog {
 
     private transient Movie movie;
+    private transient MainFrame frame;
 
     /**
      * Creates new form MovieForm
@@ -23,23 +24,26 @@ public class MovieDialog extends java.awt.Dialog {
      * @param modal
      */
     private MovieDialog(java.awt.Frame parent, boolean modal) {
+        this(parent, modal, null, null);
+    }
+
+    public MovieDialog(java.awt.Frame parent, boolean modal, MainFrame frame, ComboBoxModel model) {
+        this(parent, modal, frame, model, null);
+    }
+
+    public MovieDialog(java.awt.Frame parent, boolean modal, MainFrame frame,
+            ComboBoxModel model, Movie movie) {
         super(parent, modal);
+        this.frame = frame;
+        this.movie = movie;
         initComponents();
         fillYears();
         fillStars();
         addActionListeners();
-    }
-
-    public MovieDialog(java.awt.Frame parent, boolean modal, ComboBoxModel model) {
-        this(parent, modal);
         genresList.setModel(model);
-    }
-
-    public MovieDialog(java.awt.Frame parent, boolean modal,
-            ComboBoxModel model, Movie movie) {
-        this(parent, modal, model);
-        this.movie = movie;
-        initFields();
+        if (movie != null) {
+            initFields();
+        }
     }
     
     private void initFields() {
@@ -96,7 +100,6 @@ public class MovieDialog extends java.awt.Dialog {
     }
 
     private void saveMovie(Genre genre, String movieTitle, int year, Integer stars) {
-        MainFrame frame = (MainFrame) getParent();
         if (movie == null) {
             buildMovie(genre, movieTitle, year, stars);
             frame.saveMovie(movie);
