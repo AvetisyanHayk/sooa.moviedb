@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
@@ -138,6 +140,7 @@ public class MainFrame extends javax.swing.JFrame {
         genresList.addItemListener(new GenreItemListener(this));
         moviesList.addListSelectionListener(
                 new MovieListSelectionListener(this));
+        moviesList.addMouseListener(new MoviesListClickListener(this));
     }
 
     private void addMainMenuItemListeners() {
@@ -450,7 +453,7 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Custom Listeners">
     private static class MovieListSelectionListener implements ListSelectionListener {
 
-        MainFrame frame;
+        final MainFrame frame;
 
         MovieListSelectionListener(MainFrame frame) {
             this.frame = frame;
@@ -478,7 +481,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private static class GenreItemListener implements ItemListener {
 
-        MainFrame frame;
+        final MainFrame frame;
 
         GenreItemListener(MainFrame frame) {
             this.frame = frame;
@@ -499,7 +502,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private static class DialogClosingOnEscapeAction extends AbstractAction {
 
-        JDialog dialog;
+        final JDialog dialog;
 
         DialogClosingOnEscapeAction(JDialog dialog) {
             this.dialog = dialog;
@@ -509,6 +512,38 @@ public class MainFrame extends javax.swing.JFrame {
         public void actionPerformed(ActionEvent e) {
             dialog.dispatchEvent(new WindowEvent(
                     dialog, WindowEvent.WINDOW_CLOSING));
+        }
+    }
+    
+    private static class MoviesListClickListener implements MouseListener {
+        
+        final MainFrame frame;
+        
+        MoviesListClickListener(MainFrame frame) {
+            this.frame = frame;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                frame.editMovieButton.doClick();
+            }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
         }
     }
     // </editor-fold>
