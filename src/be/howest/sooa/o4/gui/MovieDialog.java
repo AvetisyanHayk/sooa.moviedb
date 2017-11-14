@@ -3,8 +3,6 @@ package be.howest.sooa.o4.gui;
 import be.howest.sooa.o4.domain.Genre;
 import be.howest.sooa.o4.domain.Movie;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.Calendar;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
