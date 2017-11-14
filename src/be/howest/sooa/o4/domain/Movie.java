@@ -10,15 +10,20 @@ import java.util.Objects;
 public class Movie {
 
     private final long id;
-    private final String title;
-    private final int year;
-    private final int stars;
+    private String title;
+    private int year;
+    private Integer stars;
+    private Genre genre;
 
-    public Movie(long id, String title, int year, int stars) {
-        this.id = id;
+    public Movie(long id, String title, int year, Integer stars) {
         this.title = title;
         this.year = year;
         this.stars = stars;
+        this.id = id;
+    }
+
+    public Movie(String title, int year, Integer stars) {
+        this(0L, title, year, stars);
     }
 
     public long getId() {
@@ -28,13 +33,33 @@ public class Movie {
     public String getTitle() {
         return title;
     }
+    
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public int getYear() {
         return year;
     }
+    
+    public void setYear(int year) {
+        this.year = year;
+    }
 
-    public int getStars() {
+    public Integer getStars() {
         return stars;
+    }
+    
+    public void setStars(Integer stars) {
+        this.stars = stars;
+    }
+
+    public Genre getGenre() {
+        return genre;
+    }
+
+    public void setGenre(Genre genre) {
+        this.genre = genre;
     }
 
     @Override
@@ -69,10 +94,11 @@ public class Movie {
                 .append("(")
                 .append(year).append(") ")
                 .append(title).append(" ");
-        for (int i = 0; i < stars; i++) {
+        int _stars = (stars == null) ? 0 : stars;
+        for (int i = 0; i < _stars; i++) {
             sb.append("●");
         }
-        for (int i = stars; i < 5; i++) {
+        for (int i = _stars; i < 5; i++) {
             sb.append("○");
         }
         return sb.toString();

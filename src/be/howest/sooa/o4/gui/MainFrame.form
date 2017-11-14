@@ -39,6 +39,7 @@
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
+    <Property name="title" type="java.lang.String" value="Movie Management System"/>
     <Property name="resizable" type="boolean" value="false"/>
   </Properties>
   <SyntheticProperties>
@@ -69,17 +70,21 @@
                       <Component id="addMovieButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="editMovieButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="deleteMovieButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="30" max="32767" attributes="0"/>
                       <Component id="exitButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="labelH1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="75" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="genresList" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="genresButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="editGenreButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="addGenreButton" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -94,7 +99,8 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="genresList" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="genresButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="editGenreButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="addGenreButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPane1" pref="145" max="32767" attributes="0"/>
@@ -103,6 +109,7 @@
                   <Component id="addMovieButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="editMovieButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="exitButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="deleteMovieButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -164,9 +171,23 @@
         <Property name="text" type="java.lang.String" value="Exit"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="genresButton">
+    <Component class="javax.swing.JButton" name="editGenreButton">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Genres..."/>
+        <Property name="text" type="java.lang.String" value="Edit..."/>
+        <Property name="actionCommand" type="java.lang.String" value="Edit..."/>
+        <Property name="enabled" type="boolean" value="false"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="deleteMovieButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Delete Movie"/>
+        <Property name="enabled" type="boolean" value="false"/>
+        <Property name="name" type="java.lang.String" value="" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="addGenreButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Add..."/>
       </Properties>
     </Component>
   </SubComponents>

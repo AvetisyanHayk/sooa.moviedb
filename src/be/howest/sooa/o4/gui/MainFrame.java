@@ -4,8 +4,10 @@ import be.howest.sooa.o4.domain.Genre;
 import be.howest.sooa.o4.domain.Movie;
 import be.howest.sooa.o4.data.GenreRepository;
 import be.howest.sooa.o4.data.MovieRepository;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.DefaultComboBoxModel;
@@ -20,32 +22,113 @@ import javax.swing.event.ListSelectionListener;
  */
 public class MainFrame extends javax.swing.JFrame {
 
-    private final MovieRepository movieRepo = new MovieRepository();
-    private final GenreRepository genreRepo = new GenreRepository();
-    private Movie selectedMovie;
+    private final transient MovieRepository movieRepo = new MovieRepository();
+    private final transient GenreRepository genreRepo = new GenreRepository();
+    private transient Movie selectedMovie;
 
     /**
      * Creates new form MainForm
      */
     public MainFrame() {
         initComponents();
-        attachActionListeners();
+        addActionListeners();
         fillGenres();
     }
 
-    private void attachActionListeners() {
-        MainFrame frame = this;
-        exitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.setVisible(false);
-                frame.dispose();
-            }
-        });
+    private void addActionListeners() {
+        addGeneralButtonActionListeners();
+        addEditGenreButtonActionListener();
+        addAddGenreButtonActionListener();
+        addAddMovieButtonActionListener();
+        addEditMovieButtonActionListener();
+        addDeleteMovieButtonActionListener();
+        addListActionListeners();
+    }
+
+    private void addListActionListeners() {
         genresList.addItemListener(new GenreItemListener(this));
         moviesList.addListSelectionListener(
                 new MovieListSelectionListener(this));
+    }
 
+    private void addGeneralButtonActionListeners() {
+        exitButton.addActionListener((ActionEvent e) -> {
+            setVisible(false);
+            dispose();
+        });
+    }
+
+    public void addAddGenreButtonActionListener() {
+        addGenreButton.addActionListener((ActionEvent e) -> {
+            GenreDialog genreDialog = new GenreDialog(MainFrame.this, true);
+            genreDialog.setTitle("Add Genre");
+            centerScreen(genreDialog);
+            genreDialog.setVisible(true);
+        });
+    }
+
+    public void addEditGenreButtonActionListener() {
+        editGenreButton.addActionListener((ActionEvent e) -> {
+            GenreDialog genreDialog = new GenreDialog(MainFrame.this, true,
+                    getSelectedGenre());
+            genreDialog.setTitle("Edit Genre");
+            centerScreen(genreDialog);
+            genreDialog.setVisible(true);
+        });
+    }
+
+    private Genre getSelectedGenre() {
+        return (Genre) genresList.getModel().getSelectedItem();
+    }
+
+    private void addAddMovieButtonActionListener() {
+        addMovieButton.addActionListener((ActionEvent e) -> {
+            MovieDialog movieDialog = new MovieDialog(MainFrame.this, true,
+                    genresList.getModel());
+            movieDialog.setTitle("Add Movie");
+            centerScreen(movieDialog);
+            movieDialog.setVisible(true);
+        });
+    }
+
+    private void addEditMovieButtonActionListener() {
+        editMovieButton.addActionListener((ActionEvent e) -> {
+            MovieDialog movieDialog = new MovieDialog(MainFrame.this, true,
+                    genresList.getModel(), selectedMovie);
+            movieDialog.setTitle("Edit Movie");
+            centerScreen(movieDialog);
+            movieDialog.setVisible(true);
+        });
+    }
+
+    private void addDeleteMovieButtonActionListener() {
+        deleteMovieButton.addActionListener((ActionEvent e) -> {
+            Object[] options = {"Do not delete", "Delete Movie"};
+            int result = JOptionPane.showOptionDialog(this,
+                    "Please, apply you want to delete the following movie:\n"
+                    + selectedMovie,
+                    "Delete movie?",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
+            if (result == 1) {
+                movieRepo.delete(selectedMovie);
+            }
+        });
+    }
+
+    public void centerScreen() {
+        centerScreen(this);
+    }
+
+    private void centerScreen(Window window) {
+        final Toolkit toolkit = Toolkit.getDefaultToolkit();
+        final Dimension screenSize = toolkit.getScreenSize();
+        final int x = (screenSize.width - window.getWidth()) / 2;
+        final int y = (screenSize.height - window.getHeight()) / 2;
+        window.setLocation(x, y);
     }
 
     private void fillGenres() {
@@ -71,6 +154,26 @@ public class MainFrame extends javax.swing.JFrame {
         editMovieButton.setEnabled(false);
     }
 
+    public void saveMovie(Movie movie) {
+        movieRepo.save(movie);
+    }
+
+    public void updateMovie(Movie movie) {
+        movieRepo.update(movie);
+    }
+
+    public void saveGenre(Genre genre) {
+        genreRepo.save(genre);
+    }
+
+    public void updateGenre(Genre genre) {
+        genreRepo.update(genre);
+    }
+
+    public void deleteGenre(Genre genre) {
+        genreRepo.delete(genre);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -87,7 +190,9 @@ public class MainFrame extends javax.swing.JFrame {
         addMovieButton = new javax.swing.JButton();
         editMovieButton = new javax.swing.JButton();
         exitButton = new javax.swing.JButton();
-        genresButton = new javax.swing.JButton();
+        editGenreButton = new javax.swing.JButton();
+        deleteMovieButton = new javax.swing.JButton();
+        addGenreButton = new javax.swing.JButton();
         menuBarMain = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         menuItemExit = new javax.swing.JMenuItem();
@@ -95,6 +200,7 @@ public class MainFrame extends javax.swing.JFrame {
         menuItemAbout = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Movie Management System");
         setResizable(false);
 
         labelH1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
@@ -110,7 +216,15 @@ public class MainFrame extends javax.swing.JFrame {
 
         exitButton.setText("Exit");
 
-        genresButton.setText("Genres...");
+        editGenreButton.setText("Edit...");
+        editGenreButton.setActionCommand("Edit...");
+        editGenreButton.setEnabled(false);
+
+        deleteMovieButton.setText("Delete Movie");
+        deleteMovieButton.setEnabled(false);
+        deleteMovieButton.setName(""); // NOI18N
+
+        addGenreButton.setText("Add...");
 
         menuFile.setText("File");
 
@@ -150,15 +264,19 @@ public class MainFrame extends javax.swing.JFrame {
                         .addComponent(addMovieButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(editMovieButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deleteMovieButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                         .addComponent(exitButton))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(labelH1)
-                        .addGap(0, 75, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(genresList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(genresButton)))
+                        .addComponent(editGenreButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(addGenreButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -169,14 +287,16 @@ public class MainFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(genresList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(genresButton))
+                    .addComponent(editGenreButton)
+                    .addComponent(addGenreButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addMovieButton)
                     .addComponent(editMovieButton)
-                    .addComponent(exitButton))
+                    .addComponent(exitButton)
+                    .addComponent(deleteMovieButton))
                 .addContainerGap())
         );
 
@@ -207,31 +327,28 @@ public class MainFrame extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            System.out.println(ex.getMessage());
         }
         //</editor-fold>
         //</editor-fold>
 
+        //</editor-fold>
+        //</editor-fold>
+
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainFrame().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new MainFrame().setVisible(true);
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addGenreButton;
     private javax.swing.JButton addMovieButton;
+    private javax.swing.JButton deleteMovieButton;
+    private javax.swing.JButton editGenreButton;
     private javax.swing.JButton editMovieButton;
     private javax.swing.JButton exitButton;
-    private javax.swing.JButton genresButton;
     private javax.swing.JComboBox<Genre> genresList;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelH1;
@@ -256,13 +373,18 @@ public class MainFrame extends javax.swing.JFrame {
             boolean isAdjusting = e.getValueIsAdjusting();
             if (isAdjusting) {
                 int index = e.getLastIndex();
-                if (index >= 0) {
+                boolean enabled = index >= 0;
+                if (enabled) {
                     frame.selectedMovie
                             = frame.moviesList.getModel().getElementAt(index);
+                    frame.selectedMovie.setGenre(
+                            (Genre) frame.genresList.getSelectedItem());
                 } else {
                     frame.selectedMovie = null;
                 }
-                frame.editMovieButton.setEnabled(index >= 0);
+
+                frame.editMovieButton.setEnabled(enabled);
+                frame.deleteMovieButton.setEnabled(enabled);
             }
         }
     }
@@ -277,12 +399,14 @@ public class MainFrame extends javax.swing.JFrame {
 
         @Override
         public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
+            boolean itemSelected = e.getStateChange() == ItemEvent.SELECTED;
+            if (itemSelected) {
                 Genre selected = (Genre) e.getItem();
                 frame.fillMovies(selected);
             } else {
                 frame.clearMovies();
             }
+            frame.editGenreButton.setEnabled(itemSelected);
 
         }
 

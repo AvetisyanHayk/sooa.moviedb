@@ -9,11 +9,15 @@ import java.util.Objects;
  */
 public class Genre {
     private final long id;
-    private final String name;
+    private String name;
 
     public Genre(long id, String name) {
         this.id = id;
         this.name = name;
+    }
+    
+    public Genre(String name) {
+        this(0, name);
     }
 
     public long getId() {
@@ -22,6 +26,10 @@ public class Genre {
 
     public String getName() {
         return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

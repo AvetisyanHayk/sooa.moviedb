@@ -1,6 +1,7 @@
 package be.howest.sooa.o4.data;
 
 import be.howest.sooa.o4.domain.Genre;
+import be.howest.sooa.o4.domain.Movie;
 import be.howest.sooa.o4.moviedb.DBException;
 
 import java.sql.Connection;
@@ -31,6 +32,21 @@ public class GenreRepository extends AbstractRepository {
             throw new DBException(ex);
         }
         return entities;
+    }
+    
+    public void save(Genre genre) {
+        // TODO
+        System.out.println("Saving genre " + genre);
+    }
+    
+    public void update(Genre genre) {
+        // TODO
+        System.out.println("Updating genre " + genre);
+    }
+    
+    public void delete(Genre genre) {
+        // TODO
+        System.out.println("Deleting genre " + genre);
     }
 
     private Genre build(ResultSet resultSet) throws SQLException {

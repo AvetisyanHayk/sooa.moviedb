@@ -14,6 +14,7 @@ public class Program extends JFrame {
      */
     public static void main(String[] args) {
         MainFrame main = new MainFrame();
+        main.centerScreen();
         main.setVisible(true);
     }
     

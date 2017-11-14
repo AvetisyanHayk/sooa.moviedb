@@ -52,6 +52,21 @@ public class MovieRepository extends AbstractRepository {
         return entities;
     }
     
+    public void save(Movie movie) {
+        // TODO
+        System.out.println("Saving movie " + movie);
+    }
+    
+    public void update(Movie movie) {
+        // TODO
+        System.out.println("Updating movie " + movie);
+    }
+    
+    public void delete(Movie movie) {
+        // TODO
+        System.out.println("Deleting movie " + movie);
+    }
+    
     private Movie build(ResultSet resultSet) throws SQLException {
         return new Movie(
                 resultSet.getLong("id"),
