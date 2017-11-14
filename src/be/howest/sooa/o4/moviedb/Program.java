@@ -9,14 +9,7 @@ import javax.swing.JFrame;
  */
 public class Program extends JFrame {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        MainFrame main = new MainFrame();
-        main.centerScreen();
-        main.setVisible(true);
-    }
+    
     
     
     

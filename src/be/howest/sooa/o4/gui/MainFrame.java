@@ -10,9 +10,16 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -22,8 +29,8 @@ import javax.swing.event.ListSelectionListener;
  */
 public class MainFrame extends javax.swing.JFrame {
 
-    private final transient MovieRepository movieRepo = new MovieRepository();
-    private final transient GenreRepository genreRepo = new GenreRepository();
+    private transient MovieRepository movieRepo;
+    private transient GenreRepository genreRepo;
     private transient Movie selectedMovie;
 
     /**
@@ -31,60 +38,68 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame() {
         initComponents();
-        addActionListeners();
+    }
+
+    public void confirmAuthentication() {
+        movieRepo = new MovieRepository();
+        genreRepo = new GenreRepository();
+        addListeners();
         fillGenres();
     }
 
-    private void addActionListeners() {
-        addGeneralButtonActionListeners();
+    // <editor-fold defaultstate="collapsed" desc="Listeners">
+    private void addListeners() {
+        addExitButtonActionListener();
         addEditGenreButtonActionListener();
         addAddGenreButtonActionListener();
         addAddMovieButtonActionListener();
         addEditMovieButtonActionListener();
         addDeleteMovieButtonActionListener();
         addListActionListeners();
+        addMainMenuItemListeners();
     }
 
-    private void addListActionListeners() {
-        genresList.addItemListener(new GenreItemListener(this));
-        moviesList.addListSelectionListener(
-                new MovieListSelectionListener(this));
-    }
-
-    private void addGeneralButtonActionListeners() {
+    private void addExitButtonActionListener() {
         exitButton.addActionListener((ActionEvent e) -> {
             setVisible(false);
             dispose();
         });
     }
 
-    public void addAddGenreButtonActionListener() {
-        addGenreButton.addActionListener((ActionEvent e) -> {
-            GenreDialog genreDialog = new GenreDialog(MainFrame.this, true, this);
-            genreDialog.setTitle("Add Genre");
-            centerScreen(genreDialog);
-            genreDialog.setVisible(true);
-        });
+    public void addDialogKeyListener(JDialog dialog) {
+        KeyStroke escapeStroke
+                = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        String dispatchWindowClosingActionMapKey
+                = "com.spodding.tackline.dispatch:WINDOW_CLOSING";
+        JRootPane root = dialog.getRootPane();
+        root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                escapeStroke, dispatchWindowClosingActionMapKey);
+        root.getActionMap().put(dispatchWindowClosingActionMapKey,
+                new DialogClosingOnEscapeAction(dialog));
     }
 
     public void addEditGenreButtonActionListener() {
         editGenreButton.addActionListener((ActionEvent e) -> {
-            GenreDialog genreDialog = new GenreDialog(MainFrame.this, true,
-                    this, getSelectedGenre());
+            Genre selectedGenre = (Genre) genresList.getModel().getSelectedItem();
+            GenreDialog genreDialog = new GenreDialog(this, selectedGenre);
             genreDialog.setTitle("Edit Genre");
             centerScreen(genreDialog);
             genreDialog.setVisible(true);
         });
     }
 
-    private Genre getSelectedGenre() {
-        return (Genre) genresList.getModel().getSelectedItem();
+    public void addAddGenreButtonActionListener() {
+        addGenreButton.addActionListener((ActionEvent e) -> {
+            GenreDialog genreDialog = new GenreDialog(this);
+            genreDialog.setTitle("Add Genre");
+            centerScreen(genreDialog);
+            genreDialog.setVisible(true);
+        });
     }
 
     private void addAddMovieButtonActionListener() {
         addMovieButton.addActionListener((ActionEvent e) -> {
-            MovieDialog movieDialog = new MovieDialog(MainFrame.this, true,
-                    this, genresList.getModel());
+            MovieDialog movieDialog = new MovieDialog(this, genresList.getModel());
             movieDialog.setTitle("Add Movie");
             centerScreen(movieDialog);
             movieDialog.setVisible(true);
@@ -93,8 +108,8 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void addEditMovieButtonActionListener() {
         editMovieButton.addActionListener((ActionEvent e) -> {
-            MovieDialog movieDialog = new MovieDialog(MainFrame.this, true,
-                    this, genresList.getModel(), selectedMovie);
+            MovieDialog movieDialog
+                    = new MovieDialog(this, genresList.getModel(), selectedMovie);
             movieDialog.setTitle("Edit Movie");
             centerScreen(movieDialog);
             movieDialog.setVisible(true);
@@ -114,24 +129,40 @@ public class MainFrame extends javax.swing.JFrame {
                     options,
                     options[0]);
             if (result == 1) {
-                movieRepo.delete(selectedMovie);
-                fillMovies(selectedMovie.getGenre());
+                deleteMovie(selectedMovie);
             }
         });
     }
 
-    public void centerScreen() {
-        centerScreen(this);
+    private void addListActionListeners() {
+        genresList.addItemListener(new GenreItemListener(this));
+        moviesList.addListSelectionListener(
+                new MovieListSelectionListener(this));
     }
 
-    private void centerScreen(Window window) {
-        final Toolkit toolkit = Toolkit.getDefaultToolkit();
-        final Dimension screenSize = toolkit.getScreenSize();
-        final int x = (screenSize.width - window.getWidth()) / 2;
-        final int y = (screenSize.height - window.getHeight()) / 2;
-        window.setLocation(x, y);
+    private void addMainMenuItemListeners() {
+        addExitMenuItemListener();
+        addAboutMenuItemListener();
     }
 
+    private void addExitMenuItemListener() {
+        exitMenuItem.addItemListener((ItemEvent e) -> {
+            setVisible(false);
+            dispose();
+        });
+    }
+
+    private void addAboutMenuItemListener() {
+        aboutMenuItem.addItemListener((ItemEvent e) -> {
+            String message = "Movie management system (c) 2018 Hayk AVETISYAN";
+            JOptionPane.showMessageDialog(this, message, "About",
+                    JOptionPane.INFORMATION_MESSAGE);
+        });
+    }
+
+    // </editor-fold>
+    //
+    // <editor-fold defaultstate="collapsed" desc="Fill, Clear, and Select">
     private void fillGenres() {
         DefaultComboBoxModel<Genre> model = new DefaultComboBoxModel<>();
         model.addElement(null);
@@ -155,6 +186,28 @@ public class MainFrame extends javax.swing.JFrame {
         editMovieButton.setEnabled(false);
     }
 
+    private void selectGenre(Genre genre) {
+        genresList.setSelectedItem(genre);
+    }
+
+    // </editor-fold>
+    //
+    // <editor-fold defaultstate="collapsed" desc="Data Manipilation">
+    private void connectToDatabse() {
+        PasswordDialog dialog = new PasswordDialog(this);
+        dialog.setTitle("Connect to database");
+        centerScreen(dialog);
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                if (movieRepo == null || genreRepo == null) {
+                    destroy();
+                }
+            }
+        });
+        dialog.setVisible(true);
+    }
+
     public void saveMovie(Movie movie) {
         movieRepo.save(movie);
         fillMovies(movie.getGenre());
@@ -163,6 +216,11 @@ public class MainFrame extends javax.swing.JFrame {
     public void updateMovie(Movie movie) {
         movieRepo.update(movie);
         fillMovies(movie.getGenre());
+    }
+
+    public void deleteMovie(Movie movie) {
+        movieRepo.delete(selectedMovie);
+        fillMovies(selectedMovie.getGenre());
     }
 
     public void saveGenre(Genre genre) {
@@ -183,10 +241,28 @@ public class MainFrame extends javax.swing.JFrame {
         editGenreButton.setEnabled(false);
     }
 
-    private void selectGenre(Genre genre) {
-        genresList.setSelectedItem(genre);
+    // </editor-fold>
+    //
+    // <editor-fold defaultstate="collapsed" desc="Custom functions">
+    public void centerScreen() {
+        centerScreen(this);
     }
 
+    private void centerScreen(Window window) {
+        final Toolkit toolkit = Toolkit.getDefaultToolkit();
+        final Dimension screenSize = toolkit.getScreenSize();
+        final int x = (screenSize.width - window.getWidth()) / 2;
+        final int y = (screenSize.height - window.getHeight()) / 2;
+        window.setLocation(x, y);
+    }
+
+    public void destroy() {
+        setVisible(false);
+        dispose();
+    }
+
+    // </editor-fold>
+    //
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -206,11 +282,11 @@ public class MainFrame extends javax.swing.JFrame {
         editGenreButton = new javax.swing.JButton();
         deleteMovieButton = new javax.swing.JButton();
         addGenreButton = new javax.swing.JButton();
-        menuBarMain = new javax.swing.JMenuBar();
+        mainMenu = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
-        menuItemExit = new javax.swing.JMenuItem();
+        exitMenuItem = new javax.swing.JMenuItem();
         menuHelp = new javax.swing.JMenu();
-        menuItemAbout = new javax.swing.JMenuItem();
+        aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Movie Management System");
@@ -230,7 +306,6 @@ public class MainFrame extends javax.swing.JFrame {
         exitButton.setText("Exit");
 
         editGenreButton.setText("Edit...");
-        editGenreButton.setActionCommand("Edit...");
         editGenreButton.setEnabled(false);
 
         deleteMovieButton.setText("Delete Movie");
@@ -241,29 +316,29 @@ public class MainFrame extends javax.swing.JFrame {
 
         menuFile.setText("File");
 
-        menuItemExit.setText("Exit");
-        menuItemExit.addActionListener(new java.awt.event.ActionListener() {
+        exitMenuItem.setText("Exit");
+        exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemExitActionPerformed(evt);
+                exitMenuItemActionPerformed(evt);
             }
         });
-        menuFile.add(menuItemExit);
+        menuFile.add(exitMenuItem);
 
-        menuBarMain.add(menuFile);
+        mainMenu.add(menuFile);
 
         menuHelp.setText("Edit");
 
-        menuItemAbout.setText("About");
-        menuItemAbout.addActionListener(new java.awt.event.ActionListener() {
+        aboutMenuItem.setText("About");
+        aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemAboutActionPerformed(evt);
+                aboutMenuItemActionPerformed(evt);
             }
         });
-        menuHelp.add(menuItemAbout);
+        menuHelp.add(aboutMenuItem);
 
-        menuBarMain.add(menuHelp);
+        mainMenu.add(menuHelp);
 
-        setJMenuBar(menuBarMain);
+        setJMenuBar(mainMenu);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -316,13 +391,13 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void menuItemExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemExitActionPerformed
+    private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
         this.dispose();
-    }//GEN-LAST:event_menuItemExitActionPerformed
+    }//GEN-LAST:event_exitMenuItemActionPerformed
 
-    private void menuItemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemAboutActionPerformed
+    private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
         JOptionPane.showMessageDialog(this, "Movie management system (c) 2018 Hayk AVETISYAN");
-    }//GEN-LAST:event_menuItemAboutActionPerformed
+    }//GEN-LAST:event_aboutMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
@@ -344,35 +419,35 @@ public class MainFrame extends javax.swing.JFrame {
             System.out.println(ex.getMessage());
         }
         //</editor-fold>
-        //</editor-fold>
-
-        //</editor-fold>
-        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new MainFrame().setVisible(true);
+            MainFrame newMainFrame = new MainFrame();
+            newMainFrame.centerScreen();
+            newMainFrame.setVisible(true);
+            newMainFrame.connectToDatabse();
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JButton addGenreButton;
     private javax.swing.JButton addMovieButton;
     private javax.swing.JButton deleteMovieButton;
     private javax.swing.JButton editGenreButton;
     private javax.swing.JButton editMovieButton;
     private javax.swing.JButton exitButton;
+    private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JComboBox<Genre> genresList;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelH1;
-    private javax.swing.JMenuBar menuBarMain;
+    private javax.swing.JMenuBar mainMenu;
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenu menuHelp;
-    private javax.swing.JMenuItem menuItemAbout;
-    private javax.swing.JMenuItem menuItemExit;
     private javax.swing.JList<Movie> moviesList;
     // End of variables declaration//GEN-END:variables
 
+    // <editor-fold defaultstate="collapsed" desc="Custom Listeners">
     private static class MovieListSelectionListener implements ListSelectionListener {
 
         MainFrame frame;
@@ -395,7 +470,6 @@ public class MainFrame extends javax.swing.JFrame {
                 } else {
                     frame.selectedMovie = null;
                 }
-
                 frame.editMovieButton.setEnabled(enabled);
                 frame.deleteMovieButton.setEnabled(enabled);
             }
@@ -420,8 +494,22 @@ public class MainFrame extends javax.swing.JFrame {
                 frame.clearMovies();
             }
             frame.editGenreButton.setEnabled(itemSelected);
+        }
+    }
 
+    private static class DialogClosingOnEscapeAction extends AbstractAction {
+
+        JDialog dialog;
+
+        DialogClosingOnEscapeAction(JDialog dialog) {
+            this.dialog = dialog;
         }
 
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            dialog.dispatchEvent(new WindowEvent(
+                    dialog, WindowEvent.WINDOW_CLOSING));
+        }
     }
+    // </editor-fold>
 }

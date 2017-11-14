@@ -3,6 +3,8 @@ package be.howest.sooa.o4.gui;
 import be.howest.sooa.o4.domain.Genre;
 import be.howest.sooa.o4.domain.Movie;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Calendar;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -12,31 +14,20 @@ import javax.swing.JOptionPane;
  *
  * @author Hayk
  */
-public class MovieDialog extends java.awt.Dialog {
+public class MovieDialog extends javax.swing.JDialog {
 
     private transient Movie movie;
-    private transient MainFrame frame;
+    private final MainFrame frame;
 
-    /**
-     * Creates new form MovieForm
-     *
-     * @param parent
-     * @param modal
-     */
-    private MovieDialog(java.awt.Frame parent, boolean modal) {
-        this(parent, modal, null, null);
+    public MovieDialog(MainFrame frame, ComboBoxModel model) {
+        this(frame, model, null);
     }
 
-    public MovieDialog(java.awt.Frame parent, boolean modal, MainFrame frame, ComboBoxModel model) {
-        this(parent, modal, frame, model, null);
-    }
-
-    public MovieDialog(java.awt.Frame parent, boolean modal, MainFrame frame,
-            ComboBoxModel model, Movie movie) {
-        super(parent, modal);
+    public MovieDialog(MainFrame frame, ComboBoxModel model, Movie movie) {
+        super(frame, true);
+        initComponents();
         this.frame = frame;
         this.movie = movie;
-        initComponents();
         fillYears();
         fillStars();
         addActionListeners();
@@ -45,7 +36,60 @@ public class MovieDialog extends java.awt.Dialog {
             initFields();
         }
     }
-    
+
+    // <editor-fold defaultstate="collapsed" desc="Listeners">
+    private void addActionListeners() {
+        frame.addDialogKeyListener(this);
+        addCancelButtonActionListener();
+        addSaveButtonActionListener();
+        addFieldEnterKeyActionListeners();
+    }
+
+    private void addCancelButtonActionListener() {
+        cancelButton.addActionListener((ActionEvent e) -> {
+            setVisible(false);
+            dispose();
+        });
+    }
+
+    private void addSaveButtonActionListener() {
+        saveButton.addActionListener((ActionEvent e) -> {
+            Genre genre = (Genre) genresList.getModel().getSelectedItem();
+            String movieTitle = titleField.getText().trim();
+            Integer year = (Integer) yearsList.getSelectedItem();
+            Integer stars = (Integer) starsList.getSelectedItem();
+            if (genre == null || "".equals(movieTitle)) {
+                showWarning(genre, movieTitle);
+            } else {
+                saveMovie(genre, movieTitle, year, stars);
+            }
+        });
+    }
+
+    private void showWarning(Genre genre, String movieTitle) {
+        StringBuilder sb = new StringBuilder();
+        if (genre == null) {
+            sb.append("Please, select genre from the list.");
+            if ("".equals(movieTitle)) {
+                sb.append("\n");
+            }
+        }
+        if ("".equals(movieTitle)) {
+            sb.append("Title field may not be empty!");
+        }
+        JOptionPane.showMessageDialog(this, sb, "Warning",
+                JOptionPane.WARNING_MESSAGE);
+    }
+
+    private void addFieldEnterKeyActionListeners() {
+        titleField.addActionListener((ActionEvent e) -> {
+            saveButton.doClick();
+        });
+    }
+
+    // </editor-fold>
+    //
+    // <editor-fold defaultstate="collapsed" desc="Fill, Clear, and Select">
     private void initFields() {
         genresList.setSelectedItem(movie.getGenre());
         yearsList.setSelectedItem(movie.getYear());
@@ -73,32 +117,9 @@ public class MovieDialog extends java.awt.Dialog {
         starsList.setModel(model);
     }
 
-    private void addActionListeners() {
-        addCancelButtonActionListener();
-        addSaveButtonActionListener();
-    }
-
-    private void addCancelButtonActionListener() {
-        cancelButton.addActionListener((ActionEvent e) -> {
-            setVisible(false);
-            dispose();
-        });
-    }
-
-    private void addSaveButtonActionListener() {
-        saveButton.addActionListener((ActionEvent e) -> {
-            Genre genre = (Genre) genresList.getModel().getSelectedItem();
-            String movieTitle = titleField.getText().trim();
-            Integer year = (Integer) yearsList.getSelectedItem();
-            Integer stars = (Integer) starsList.getSelectedItem();
-            if (genre == null || "".equals(movieTitle)) {
-                showWarningForRequiredData(genre, movieTitle);
-            } else {
-                saveMovie(genre, movieTitle, year, stars);
-            }
-        });
-    }
-
+    // </editor-fold>
+    //
+    // <editor-fold defaultstate="collapsed" desc="Data Manipulation">
     private void saveMovie(Genre genre, String movieTitle, int year, Integer stars) {
         if (movie == null) {
             buildMovie(genre, movieTitle, year, stars);
@@ -125,26 +146,14 @@ public class MovieDialog extends java.awt.Dialog {
         movie.setStars(stars);
     }
 
-    private void showWarningForRequiredData(Genre genre, String movieTitle) {
-        StringBuilder sb = new StringBuilder();
-        if (genre == null) {
-            sb.append("Please, select genre from the list.");
-            if ("".equals(movieTitle)) {
-                sb.append("\n");
-            }
-        }
-        if ("".equals(movieTitle)) {
-            sb.append("Title field may not be empty!");
-        }
-        JOptionPane.showMessageDialog(this, sb, "Warning",
-                JOptionPane.WARNING_MESSAGE);
-    }
-
+    // </editor-fold>
+    //
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
      * regenerated by the Form Editor.
      */
+    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -158,11 +167,8 @@ public class MovieDialog extends java.awt.Dialog {
         saveButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
 
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent evt) {
-                closeDialog(evt);
-            }
-        });
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setBackground(null);
 
         yearLabel.setText("Year");
 
@@ -174,8 +180,8 @@ public class MovieDialog extends java.awt.Dialog {
 
         cancelButton.setText("Do not save");
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
@@ -229,31 +235,6 @@ public class MovieDialog extends java.awt.Dialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * Closes the dialog
-     */
-    private void closeDialog(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_closeDialog
-        setVisible(false);
-        dispose();
-    }//GEN-LAST:event_closeDialog
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(() -> {
-            MovieDialog dialog = new MovieDialog(new java.awt.Frame(), true);
-            dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                @Override
-                public void windowClosing(java.awt.event.WindowEvent e) {
-                    System.exit(0);
-                }
-            });
-            dialog.setVisible(true);
-        });
-    }
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
