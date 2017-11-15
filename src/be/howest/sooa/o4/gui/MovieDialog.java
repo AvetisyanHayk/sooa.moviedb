@@ -202,7 +202,7 @@ public class MovieDialog extends javax.swing.JDialog {
 
         titleLabel.setText("Title");
 
-        saveButton.setText("Save");
+        saveButton.setText("Save Movie");
 
         cancelButton.setText("Do not save");
 
@@ -230,7 +230,7 @@ public class MovieDialog extends javax.swing.JDialog {
                                 .addComponent(saveButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(cancelButton)))
-                        .addGap(0, 226, Short.MAX_VALUE)))
+                        .addGap(0, 196, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
