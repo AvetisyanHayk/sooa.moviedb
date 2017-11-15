@@ -6,8 +6,15 @@ package be.howest.sooa.o4.moviedb;
  */
 public class DBException extends RuntimeException {
     
+    private static final String MESSAGE
+            = "Something went wrong with the database connection.";
+    
+    public DBException(String message) {
+        super(message);
+    }
+    
     public DBException(Throwable cause) {
-        super("Database connection error", cause);
+        super(MESSAGE, cause);
     }
     
 }

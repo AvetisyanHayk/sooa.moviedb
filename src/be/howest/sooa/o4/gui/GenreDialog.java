@@ -22,10 +22,6 @@ public class GenreDialog extends javax.swing.JDialog {
         initComponents();
         this.genre = genre;
         this.frame = frame;
-        if (genre != null) {
-            deleteButton.setEnabled(true);
-            genreField.setText(genre.toString());
-        }
         addListeners();
     }
 
@@ -34,9 +30,7 @@ public class GenreDialog extends javax.swing.JDialog {
         frame.addDialogKeyListener(this);
         addCancelButtonActionListener();
         addSaveButtonActionListener();
-        if (genre != null) {
-            addDeleteGenreButtonActionListener();
-        }
+        addDeleteButtonActionListener();
         addFieldEnterKeyActionListeners();
     }
 
@@ -51,35 +45,22 @@ public class GenreDialog extends javax.swing.JDialog {
         saveButton.addActionListener((ActionEvent e) -> {
             String newGenre = genreField.getText().trim();
             if ("".equals(newGenre)) {
-                showWarning();
+                showWarning("Genre field may not be empty!");
             } else {
                 saveGenre(newGenre);
             }
         });
     }
 
-    private void showWarning() {
-        String message = "Genre field may not be empty!";
-        JOptionPane.showMessageDialog(this, message, "Warning",
-                JOptionPane.WARNING_MESSAGE);
-    }
-
-    private void addDeleteGenreButtonActionListener() {
+    private void addDeleteButtonActionListener() {
         deleteButton.addActionListener((ActionEvent e) -> {
             Object[] options = {"Do not delete", "Delete Genre"};
             int result = JOptionPane.showOptionDialog(this,
                     "Please, apply you want to delete the following genre:\n"
-                    + genre,
-                    "Delete genre?",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    options,
-                    options[0]);
+                    + genre, "Delete genre?", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
             if (result == 1) {
                 frame.deleteGenre(genre);
-                setVisible(false);
-                dispose();
             }
         });
     }
@@ -97,23 +78,44 @@ public class GenreDialog extends javax.swing.JDialog {
         if (genre == null) {
             buildGenre(newGenre);
             frame.saveGenre(genre);
+            genre = null;
         } else {
-            updateGenre(genre, newGenre);
+            genre.setName(newGenre);
             frame.updateGenre(genre);
         }
-        setVisible(false);
-        dispose();
+    }
+
+    public void setGenre(Genre genre) {
+        this.genre = genre;
     }
 
     private void buildGenre(String newGenre) {
         genre = new Genre(newGenre);
         genre.setName(newGenre);
     }
-
-    private void updateGenre(Genre genre, String newGenre) {
-        genre.setName(newGenre);
+    // </editor-fold>
+    //
+    // <editor-fold defaultstate="collapsed" desc="Custom functions">
+    public void hideDialog() {
+        genre = null;
+        setVisible(false);
     }
-
+    
+    @Override
+    public void setVisible(boolean visible) {
+        deleteButton.setEnabled(genre != null);
+        if (genre != null) {
+            genreField.setText(genre.getName());
+        } else {
+            genreField.setText("");
+        }
+        super.setVisible(visible);
+    }
+    
+    private void showWarning(String message) {
+        JOptionPane.showMessageDialog(this, message, "Warning",
+                JOptionPane.WARNING_MESSAGE);
+    }
     // </editor-fold>
     //
     /**

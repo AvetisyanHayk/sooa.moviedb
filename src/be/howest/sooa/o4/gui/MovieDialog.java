@@ -17,6 +17,10 @@ public class MovieDialog extends javax.swing.JDialog {
     private transient Movie movie;
     private final MainFrame frame;
 
+    public MovieDialog(MainFrame frame) {
+        this(frame, null, null);
+    }
+
     public MovieDialog(MainFrame frame, ComboBoxModel model) {
         this(frame, model, null);
     }
@@ -25,13 +29,20 @@ public class MovieDialog extends javax.swing.JDialog {
         super(frame, true);
         initComponents();
         this.frame = frame;
-        this.movie = movie;
+        setMovie(movie);
         fillYears();
         fillStars();
         addActionListeners();
-        genresList.setModel(model);
-        if (movie != null) {
-            initFields();
+        setGenresListModel(model);
+    }
+
+    public final void setMovie(Movie movie) {
+        this.movie = movie;
+    }
+
+    public final void setGenresListModel(ComboBoxModel model) {
+        if (model != null) {
+            genresList.setModel(model);
         }
     }
 
@@ -102,7 +113,6 @@ public class MovieDialog extends javax.swing.JDialog {
             model.addElement(year);
         }
         yearsList.setModel(model);
-        yearsList.setSelectedIndex(model.getIndexOf(currentYear));
     }
 
     private void fillStars() {
@@ -122,12 +132,18 @@ public class MovieDialog extends javax.swing.JDialog {
         if (movie == null) {
             buildMovie(genre, movieTitle, year, stars);
             frame.saveMovie(movie);
+            movie = null;
         } else {
             updateMovie(genre, movieTitle, year, stars);
             frame.updateMovie(movie);
         }
-        setVisible(false);
-        dispose();
+    }
+    
+    private void updateMovie(Genre genre, String movieTitle, int year, Integer stars) {
+        movie.setGenre(genre);
+        movie.setTitle(movieTitle);
+        movie.setYear(year);
+        movie.setStars(stars);
     }
 
     private void buildMovie(Genre genre, String movieTitle, int year, Integer stars) {
@@ -137,15 +153,27 @@ public class MovieDialog extends javax.swing.JDialog {
         movie.setGenre(genre);
     }
 
-    private void updateMovie(Genre genre, String movieTitle, int year, Integer stars) {
-        movie.setGenre(genre);
-        movie.setTitle(movieTitle);
-        movie.setYear(year);
-        movie.setStars(stars);
+    // </editor-fold>
+    //
+    // <editor-fold defaultstate="collapsed" desc="Custom Functions">
+    public void hideDialog() {
+        movie = null;
+        setVisible(false);
+    }
+    
+    @Override
+    public void setVisible(boolean visible) {
+        if (movie != null) {
+            initFields();
+        } else {
+            titleField.setText("");
+            yearsList.setSelectedItem(Calendar.getInstance().get(Calendar.YEAR));
+            starsList.setSelectedItem(null);
+        }
+        super.setVisible(visible);
     }
 
     // </editor-fold>
-    //
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

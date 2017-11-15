@@ -4,6 +4,7 @@ import be.howest.sooa.o4.domain.Genre;
 import be.howest.sooa.o4.domain.Movie;
 import be.howest.sooa.o4.data.GenreRepository;
 import be.howest.sooa.o4.data.MovieRepository;
+import be.howest.sooa.o4.moviedb.DBException;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -15,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import javax.swing.AbstractAction;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
@@ -34,12 +36,18 @@ public class MainFrame extends javax.swing.JFrame {
     private transient MovieRepository movieRepo;
     private transient GenreRepository genreRepo;
     private transient Movie selectedMovie;
+    private final GenreDialog genreDialog;
+    private final MovieDialog movieDialog;
 
     /**
      * Creates new form MainForm
      */
     public MainFrame() {
         initComponents();
+        genreDialog = new GenreDialog(this);
+        centerScreen(genreDialog);
+        movieDialog = new MovieDialog(this);
+        centerScreen(movieDialog);
     }
 
     public void confirmAuthentication() {
@@ -83,37 +91,36 @@ public class MainFrame extends javax.swing.JFrame {
     public void addEditGenreButtonActionListener() {
         editGenreButton.addActionListener((ActionEvent e) -> {
             Genre selectedGenre = (Genre) genresList.getModel().getSelectedItem();
-            GenreDialog genreDialog = new GenreDialog(this, selectedGenre);
+            genreDialog.setGenre(selectedGenre);
             genreDialog.setTitle("Edit Genre");
-            centerScreen(genreDialog);
             genreDialog.setVisible(true);
         });
     }
 
     public void addAddGenreButtonActionListener() {
         addGenreButton.addActionListener((ActionEvent e) -> {
-            GenreDialog genreDialog = new GenreDialog(this);
+            genreDialog.setGenre(null);
             genreDialog.setTitle("Add Genre");
-            centerScreen(genreDialog);
             genreDialog.setVisible(true);
         });
     }
 
     private void addAddMovieButtonActionListener() {
         addMovieButton.addActionListener((ActionEvent e) -> {
-            MovieDialog movieDialog = new MovieDialog(this, genresList.getModel());
+            ComboBoxModel<Genre> model = genresList.getModel();
+            movieDialog.setGenresListModel(model);
+            movieDialog.setMovie(null);
             movieDialog.setTitle("Add Movie");
-            centerScreen(movieDialog);
             movieDialog.setVisible(true);
         });
     }
 
     private void addEditMovieButtonActionListener() {
         editMovieButton.addActionListener((ActionEvent e) -> {
-            MovieDialog movieDialog
-                    = new MovieDialog(this, genresList.getModel(), selectedMovie);
+            ComboBoxModel<Genre> model = genresList.getModel();
+            movieDialog.setGenresListModel(model);
+            movieDialog.setMovie(selectedMovie);
             movieDialog.setTitle("Edit Movie");
-            centerScreen(movieDialog);
             movieDialog.setVisible(true);
         });
     }
@@ -121,9 +128,11 @@ public class MainFrame extends javax.swing.JFrame {
     private void addDeleteMovieButtonActionListener() {
         deleteMovieButton.addActionListener((ActionEvent e) -> {
             Object[] options = {"Do not delete", "Delete Movie"};
+            String message
+                        = String.format("Please, apply you want to delete \"%s\" (%d).",
+                                selectedMovie.getTitle(), selectedMovie.getYear());
             int result = JOptionPane.showOptionDialog(this,
-                    "Please, apply you want to delete the following movie:\n"
-                    + selectedMovie,
+                    message,
                     "Delete movie?",
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
@@ -166,7 +175,7 @@ public class MainFrame extends javax.swing.JFrame {
     // </editor-fold>
     //
     // <editor-fold defaultstate="collapsed" desc="Fill, Clear, and Select">
-    private void fillGenres() {
+    public void fillGenres() {
         DefaultComboBoxModel<Genre> model = new DefaultComboBoxModel<>();
         model.addElement(null);
         genreRepo.findAll().forEach(genre -> {
@@ -177,9 +186,11 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void fillMovies(Genre genre) {
         DefaultListModel<Movie> model = new DefaultListModel<>();
-        movieRepo.findByGenre(genre).forEach(movie -> {
-            model.addElement(movie);
-        });
+        if (genre != null) {
+            movieRepo.findByGenre(genre).forEach(movie -> {
+                model.addElement(movie);
+            });
+        }
         moviesList.setModel(model);
     }
 
@@ -189,7 +200,7 @@ public class MainFrame extends javax.swing.JFrame {
         editMovieButton.setEnabled(false);
     }
 
-    private void selectGenre(Genre genre) {
+    public void selectGenre(Genre genre) {
         genresList.setSelectedItem(genre);
     }
 
@@ -204,44 +215,126 @@ public class MainFrame extends javax.swing.JFrame {
             @Override
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 if (movieRepo == null || genreRepo == null) {
-                    destroy();
+                    close();
                 }
             }
         });
         dialog.setVisible(true);
     }
 
-    public void saveMovie(Movie movie) {
-        movieRepo.save(movie);
-        fillMovies(movie.getGenre());
+    public void saveMovie(Movie movie) throws DBException {
+        try {
+            if (!movieRepo.exists(movie)) {
+                movieRepo.save(movie);
+                fillMovies(movie.getGenre());
+                movieDialog.hideDialog();
+            } else {
+                String message
+                        = String.format("Movie \"%s\" from %d already exists",
+                                movie.getTitle(), movie.getYear());
+                showWarning(message);
+            }
+        } catch (DBException ex) {
+            showWarning(ex.getMessage());
+        }
     }
 
-    public void updateMovie(Movie movie) {
-        movieRepo.update(movie);
-        fillMovies(movie.getGenre());
+    public void updateMovie(Movie movie) throws DBException {
+        try {
+            if (!movieRepo.existsAsOther(movie)) {
+                movieRepo.update(movie);
+                fillGenres();
+                selectGenre(movie.getGenre());
+                movieDialog.hideDialog();
+            } else {
+                String message
+                        = String.format("Movie \"%s\" from %d already exists",
+                                movie.getTitle(), movie.getYear());
+                showWarning(message);
+            }
+        } catch (DBException ex) {
+            showWarning(ex.getMessage());
+        }
     }
 
     public void deleteMovie(Movie movie) {
-        movieRepo.delete(selectedMovie);
-        fillMovies(selectedMovie.getGenre());
+        try {
+            movieRepo.delete(selectedMovie);
+            fillMovies(selectedMovie.getGenre());
+        } catch (DBException ex) {
+            showWarning(ex.getMessage());
+        }
     }
 
     public void saveGenre(Genre genre) {
-        genreRepo.save(genre);
-        fillGenres();
+        try {
+            if (!genreRepo.exists(genre)) {
+                genreRepo.save(genre);
+                fillGenres();
+            } else {
+                showWarning("Genre \"" + genre.getName() + "\" already exists.");
+            }
+        } catch (DBException ex) {
+            showWarning(ex.getMessage());
+        }
         selectGenre(genre);
+        genreDialog.hideDialog();
     }
 
     public void updateGenre(Genre genre) {
-        genreRepo.update(genre);
-        fillGenres();
-        selectGenre(genre);
+        try {
+            if (!genreRepo.existsAsOther(genre)) {
+                genreRepo.update(genre);
+                fillGenres();
+                selectGenre(genre);
+                genreDialog.hideDialog();
+            } else {
+                showWarning("Genre \"" + genre.getName() + "\" already exists.");
+            }
+        } catch (DBException ex) {
+            showWarning(ex.getMessage());
+        }
     }
 
     public void deleteGenre(Genre genre) {
-        genreRepo.delete(genre);
+        try {
+            int movieCount = genreRepo.movieCountByGenre(genre);
+            if (movieCount == 0) {
+                genreRepo.delete(genre);
+                updateGUIAfterDeletingGeners();
+            } else {
+                int result = showWarningToDeleteGenreWithMovies(movieCount, genre.getName());
+                if (result == 1) {
+                    genreRepo.deleteWithMovies(genre);
+                    updateGUIAfterDeletingGeners();
+                }
+            }
+            genreDialog.hideDialog();
+        } catch (DBException ex) {
+            showWarning(ex.getMessage());
+        }
+    }
+
+    public void updateGUIAfterDeletingGeners() {
         fillGenres();
+        fillMovies(null);
         editGenreButton.setEnabled(false);
+    }
+
+    private int showWarningToDeleteGenreWithMovies(int movieCount, String genreName) {
+        Object[] options = {"Do not delete", "Delete Movies"};
+        String message;
+        if (movieCount > 1) {
+            message = String.format("There are %d %s movies.%n"
+                    + "Do you want to delete them all?", movieCount, genreName);
+        } else {
+            message = String.format("There is 1 %s movie.%n"
+                    + "Do you want to delete it?", genreName);
+        }
+        return JOptionPane.showOptionDialog(this,
+                message, "Delete genre together with movies?",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
     }
 
     // </editor-fold>
@@ -259,7 +352,12 @@ public class MainFrame extends javax.swing.JFrame {
         window.setLocation(x, y);
     }
 
-    public void destroy() {
+    private void showWarning(String message) {
+        JOptionPane.showMessageDialog(this, message, "Warning",
+                JOptionPane.WARNING_MESSAGE);
+    }
+
+    public void close() {
         setVisible(false);
         dispose();
     }
@@ -461,18 +559,15 @@ public class MainFrame extends javax.swing.JFrame {
 
         @Override
         public void valueChanged(ListSelectionEvent e) {
+
             boolean isAdjusting = e.getValueIsAdjusting();
+
             if (isAdjusting) {
-                int index = e.getLastIndex();
-                boolean enabled = index >= 0;
-                if (enabled) {
-                    frame.selectedMovie
-                            = frame.moviesList.getModel().getElementAt(index);
-                    frame.selectedMovie.setGenre(
-                            (Genre) frame.genresList.getSelectedItem());
-                } else {
-                    frame.selectedMovie = null;
-                }
+                Movie movie = frame.moviesList.getSelectedValue();
+                Genre genre = (Genre) frame.genresList.getSelectedItem();
+                movie.setGenre(genre);
+                frame.selectedMovie = movie;
+                boolean enabled = frame.selectedMovie != null;
                 frame.editMovieButton.setEnabled(enabled);
                 frame.deleteMovieButton.setEnabled(enabled);
             }
@@ -514,11 +609,11 @@ public class MainFrame extends javax.swing.JFrame {
                     dialog, WindowEvent.WINDOW_CLOSING));
         }
     }
-    
+
     private static class MoviesListClickListener implements MouseListener {
-        
+
         final MainFrame frame;
-        
+
         MoviesListClickListener(MainFrame frame) {
             this.frame = frame;
         }

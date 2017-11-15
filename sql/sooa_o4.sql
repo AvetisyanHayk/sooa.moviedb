@@ -4,7 +4,7 @@ USE `sooa_o4`;
 --
 -- Host: localhost    Database: sooa_o4
 -- ------------------------------------------------------
--- Server version	5.7.15-log
+-- Server version	5.7.16-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -26,9 +26,10 @@ DROP TABLE IF EXISTS `genre`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `genre` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+  `name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_UNIQUE` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -37,7 +38,7 @@ CREATE TABLE `genre` (
 
 LOCK TABLES `genre` WRITE;
 /*!40000 ALTER TABLE `genre` DISABLE KEYS */;
-INSERT INTO `genre` VALUES (1,'Action'),(2,'Adventure'),(3,'Comedy'),(4,'Detective'),(5,'Drama'),(6,'Fantasy'),(7,'Horror'),(8,'Sci-Fi'),(9,'Thriller'),(10,'Western');
+INSERT INTO `genre` VALUES (19,'Action'),(2,'Adventure'),(3,'Comedy'),(4,'Detective'),(5,'Drama'),(6,'Fantasy'),(1,'History'),(7,'Horror'),(8,'Sci-Fi'),(39,'Some Other'),(9,'Thriller'),(10,'Western');
 /*!40000 ALTER TABLE `genre` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -55,10 +56,10 @@ CREATE TABLE `movie` (
   `year` int(11) DEFAULT NULL,
   `stars` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `title_UNIQUE` (`title`),
-  KEY `fk_movie_has_genre_idx` (`genre_id`),
-  CONSTRAINT `fk_movie_has_genre` FOREIGN KEY (`genre_id`) REFERENCES `genre` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+  UNIQUE KEY `index_title_year` (`title`,`year`),
+  KEY `fk_movie$genre_id_idx` (`genre_id`),
+  CONSTRAINT `fk_movie$genre_id` FOREIGN KEY (`genre_id`) REFERENCES `genre` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -67,7 +68,7 @@ CREATE TABLE `movie` (
 
 LOCK TABLES `movie` WRITE;
 /*!40000 ALTER TABLE `movie` DISABLE KEYS */;
-INSERT INTO `movie` VALUES (1,'The Hunger Games',6,2012,3),(2,'Star Trek Beyond',8,2016,2),(3,'Divergent',6,2014,3),(4,'Harry Potter and the Philosopher\'s Stone',6,2002,4);
+INSERT INTO `movie` VALUES (1,'The Hunger Games',6,2012,3),(2,'Star Trek Beyond',8,2016,2),(3,'Divergent',6,2014,3),(4,'Harry Potter and the Philosopher\'s Stone',6,2002,4),(5,'The Notebook',5,2004,5),(8,'Troy',1,2004,5);
 /*!40000 ALTER TABLE `movie` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -80,4 +81,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-13 21:05:46
+-- Dump completed on 2017-11-15  1:51:38

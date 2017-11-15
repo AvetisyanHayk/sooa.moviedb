@@ -23,7 +23,7 @@ public class PasswordDialog extends javax.swing.JDialog {
     private void addActionListeners() {
         frame.addDialogKeyListener(this);
         exitButton.addActionListener((ActionEvent e) -> {
-            frame.destroy();
+            frame.close();
         });
         connectButton.addActionListener((ActionEvent e) -> {
             connectButton.setEnabled(false);
