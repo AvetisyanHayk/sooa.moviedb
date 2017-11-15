@@ -38,7 +38,7 @@ CREATE TABLE `genre` (
 
 LOCK TABLES `genre` WRITE;
 /*!40000 ALTER TABLE `genre` DISABLE KEYS */;
-INSERT INTO `genre` VALUES (19,'Action'),(2,'Adventure'),(3,'Comedy'),(4,'Detective'),(5,'Drama'),(6,'Fantasy'),(1,'History'),(7,'Horror'),(8,'Sci-Fi'),(39,'Some Other'),(9,'Thriller'),(10,'Western');
+INSERT INTO `genre` VALUES (19,'Action'),(2,'Adventure'),(3,'Comedy'),(4,'Detective'),(5,'Drama'),(6,'Fantasy'),(1,'History'),(7,'Horror'),(8,'Sci-Fi'),(9,'Thriller'),(10,'Western');
 /*!40000 ALTER TABLE `genre` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -68,7 +68,7 @@ CREATE TABLE `movie` (
 
 LOCK TABLES `movie` WRITE;
 /*!40000 ALTER TABLE `movie` DISABLE KEYS */;
-INSERT INTO `movie` VALUES (1,'The Hunger Games',6,2012,3),(2,'Star Trek Beyond',8,2016,2),(3,'Divergent',6,2014,3),(4,'Harry Potter and the Philosopher\'s Stone',6,2002,4),(5,'The Notebook',5,2004,5),(8,'Troy',1,2004,5);
+INSERT INTO `movie` VALUES (1,'The Hunger Games',6,2012,3),(2,'Star Trek Beyond',8,2016,2),(3,'Divergent',6,2014,4),(4,'Harry Potter and the Philosopher\'s Stone',6,2002,4),(5,'The Notebook',5,2004,5),(8,'Troy',1,2004,5);
 /*!40000 ALTER TABLE `movie` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -81,4 +81,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-15  1:51:38
+-- Dump completed on 2017-11-15  1:56:24
