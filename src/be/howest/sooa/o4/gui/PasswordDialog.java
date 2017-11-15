@@ -37,8 +37,7 @@ public class PasswordDialog extends javax.swing.JDialog {
     private void connectToDatabase() {
         String password = String.valueOf(passwordField.getPassword()).trim();
         try {
-            AbstractRepository.getConnection(password);
-            AbstractRepository.setPassword(password);
+            AbstractRepository.connect(password);
             frame.confirmAuthentication();
             setVisible(false);
             dispose();
@@ -72,6 +71,8 @@ public class PasswordDialog extends javax.swing.JDialog {
         setBackground(null);
 
         passwordLabel.setText("Enter database password:");
+
+        passwordField.setText("student");
 
         connectButton.setText("Connect");
 

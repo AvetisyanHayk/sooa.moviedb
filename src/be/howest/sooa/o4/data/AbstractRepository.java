@@ -18,8 +18,10 @@ public abstract class AbstractRepository {
         return DriverManager.getConnection(URL, USER, password);
     }
     
-    public static Connection getConnection(String password) throws SQLException {
-        return DriverManager.getConnection(URL, USER, password);
+    public static void connect(String password) throws SQLException {
+        try(Connection connection = DriverManager.getConnection(URL, USER, password)) {
+            setPassword(password);
+        }
     }
     
     public static void setPassword(String enteredPassword) {
