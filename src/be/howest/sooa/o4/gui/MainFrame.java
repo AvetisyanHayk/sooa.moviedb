@@ -516,7 +516,10 @@ public class MainFrame extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException
+                | javax.swing.UnsupportedLookAndFeelException ex) {
             System.out.println(ex.getMessage());
         }
         //</editor-fold>
